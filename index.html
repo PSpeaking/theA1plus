@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C1 Activity – Future Humanoid Language Teachers</title>
+<style>
+  :root {
+    --primary: #1a365d;
+    --accent: #2b6cb0;
+    --success: #276749;
+    --error: #c53030;
+    --bg: #f7fafc;
+    --card: #ffffff;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    line-height: 1.6;
+    background: var(--bg);
+    color: #2d3748;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 { color: var(--primary); margin-bottom: 8px; font-size: 1.8rem; }
+  h2 { color: var(--accent); margin: 28px 0 12px; font-size: 1.35rem; border-bottom: 2px solid #e2e8f0; padding-bottom: 6px; }
+  .intro { background: #ebf8ff; padding: 16px; border-radius: 8px; margin-bottom: 24px; border-left: 5px solid var(--accent); }
+  .text-box {
+    background: var(--card);
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+    margin-bottom: 24px;
+    font-size: 1.05rem;
+  }
+  .text-box p { margin-bottom: 14px; }
+  .card {
+    background: var(--card);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.06);
+    margin-bottom: 20px;
+  }
+  .match-item { display: flex; gap: 12px; margin-bottom: 12px; align-items: center; flex-wrap: wrap; }
+  select {
+    padding: 8px 12px;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    min-width: 220px;
+  }
+  .question { margin-bottom: 22px; }
+  .options label {
+    display: block;
+    padding: 10px 14px;
+    margin: 6px 0;
+    background: #edf2f7;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+  .options label:hover { background: #e2e8f0; }
+  .options input { margin-right: 10px; }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+  }
+  button:hover { background: #2c5282; }
+  .feedback {
+    margin-top: 10px;
+    padding: 12px;
+    border-radius: 6px;
+    display: none;
+  }
+  .correct { background: #c6f6d5; color: var(--success); display: block; }
+  .incorrect { background: #fed7d7; color: var(--error); display: block; }
+  .score-box {
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 14px;
+    background: #ebf8ff;
+    border-radius: 8px;
+    text-align: center;
+    margin: 20px 0;
+  }
+  textarea {
+    width: 100%;
+    height: 120px;
+    padding: 12px;
+    border: 2px solid #cbd5e0;
+    border-radius: 6px;
+    font-size: 1rem;
+    resize: vertical;
+  }
+  .hint { font-size: 0.95rem; color: #4a5568; margin-top: 8px; font-style: italic; }
+  .hidden { display: none; }
+  .progress { height: 8px; background: #e2e8f0; border-radius: 4px; margin: 20px 0; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 4px; width: 0%; transition: width 0.4s; }
+</style>
+</head>
+<body>
+
+<h1>Future Humanoid Language Teachers</h1>
+<p class="intro">
+  <strong>C1 Interactive Activity</strong> · Work at your own pace · Instant feedback · No teacher required<br>
+  Goal: Deepen understanding of a complex speculative text on AI, robotics and language learning.
+</p>
+
+<div class="progress"><div class="progress-bar" id="progress"></div></div>
+
+<!-- SECTION 1: Text -->
+<section id="section1">
+  <h2>1. Read the Text Carefully</h2>
+  <div class="text-box">
+    <p>Post 2035, offplanet AI will lead to further improvements in efficiency for humanoid robots teaching a second language.</p>
+    <p>For example, larger-scale, more frequent fine-tuning enabled by abundant orbital solar power could produce significantly stronger multimodal vision-language-action models. These models would allow a humanoid robot to interpret a learner's subtle facial microexpressions, posture shifts, and gaze patterns with higher accuracy across many sessions.</p>
+    <p>As a result, the robot could detect rising speaking anxiety or momentary confusion earlier and respond in real time by adjusting its own facial expression, gesture intensity, speech rate, or scaffolding level more precisely and naturally. This would improve the quality of affective support and reduce the affective filter during one-to-one conversation practice beyond what models trained under terrestrial energy and cooling constraints can typically achieve.</p>
+  </div>
+  <button onclick="showSection(2)">I’ve read it → Continue</button>
+</section>
+
+<!-- SECTION 2: Vocabulary -->
+<section id="section2" class="hidden">
+  <h2>2. Vocabulary Precision (Match the terms)</h2>
+  <div class="card">
+    <p>Select the best definition for each term as used in the text.</p>
+    
+    <div class="match-item">
+      <strong>fine-tuning</strong>
+      <select id="v1">
+        <option value="">— choose —</option>
+        <option value="a">Making small precise adjustments to improve a model’s performance</option>
+        <option value="b">Completely rebuilding an AI system from scratch</option>
+        <option value="c">Cleaning data before training</option>
+      </select>
+    </div>
+
+    <div class="match-item">
+      <strong>multimodal vision-language-action models</strong>
+      <select id="v2">
+        <option value="">— choose —</option>
+        <option value="a">Models that only process written text</option>
+        <option value="b">Models that combine visual input, language and physical actions</option>
+        <option value="c">Models specialised only in speech recognition</option>
+      </select>
+    </div>
+
+    <div class="match-item">
+      <strong>scaffolding level</strong>
+      <select id="v3">
+        <option value="">— choose —</option>
+        <option value="a">The physical height of the robot</option>
+        <option value="b">The amount of temporary support given to the learner</option>
+        <option value="c">The volume of the robot’s voice</option>
+      </select>
+    </div>
+
+    <div class="match-item">
+      <strong>affective filter</strong>
+      <select id="v4">
+        <option value="">— choose —</option>
+        <option value="a">A technical barrier in AI processing</option>
+        <option value="b">Emotional barriers (anxiety, low confidence) that hinder language acquisition</option>
+        <option value="c">A filter that removes background noise</option>
+      </select>
+    </div>
+
+    <button onclick="checkVocab()">Check Vocabulary</button>
+    <div id="vocabFeedback" class="feedback"></div>
+  </div>
+  <button onclick="showSection(3)">Continue to Comprehension →</button>
+</section>
+
+<!-- SECTION 3: Comprehension -->
+<section id="section3" class="hidden">
+  <h2>3. Comprehension Check</h2>
+  <div class="card">
+    
+    <div class="question">
+      <p><strong>1.</strong> What enables more frequent and larger-scale fine-tuning after 2035?</p>
+      <div class="options">
+        <label><input type="radio" name="q1" value="a"> Better algorithms alone</label>
+        <label><input type="radio" name="q1" value="b"> Abundant orbital solar power</label>
+        <label><input type="radio" name="q1" value="c"> Cheaper terrestrial electricity</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <p><strong>2.</strong> What can the improved models interpret more accurately?</p>
+      <div class="options">
+        <label><input type="radio" name="q2" value="a"> Only spoken words</label>
+        <label><input type="radio" name="q2" value="b"> Facial microexpressions, posture shifts and gaze patterns</label>
+        <label><input type="radio" name="q2" value="c"> Written homework only</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <p><strong>3.</strong> How does the robot respond when it detects rising anxiety?</p>
+      <div class="options">
+        <label><input type="radio" name="q3" value="a"> It stops the session</label>
+        <label><input type="radio" name="q3" value="b"> It adjusts its facial expression, gestures, speech rate or scaffolding</label>
+        <label><input type="radio" name="q3" value="c"> It increases the difficulty immediately</label>
+      </div>
+    </div>
+
+    <div class="question">
+      <p><strong>4.</strong> The main advantage over current terrestrial models is better…</p>
+      <div class="options">
+        <label><input type="radio" name="q4" value="a"> Translation speed</label>
+        <label><input type="radio" name="q4" value="b"> Affective support and reduction of the affective filter</label>
+        <label><input type="radio" name="q4" value="c"> Battery life</label>
+      </div>
+    </div>
+
+    <button onclick="checkComprehension()">Check Answers</button>
+    <div id="compFeedback" class="feedback"></div>
+    <div id="scoreBox" class="score-box hidden"></div>
+  </div>
+  <button onclick="showSection(4)">Continue to Critical Thinking →</button>
+</section>
+
+<!-- SECTION 4: Critical Thinking -->
+<section id="section4" class="hidden">
+  <h2>4. Critical Thinking & Inference</h2>
+  <div class="card">
+    <p>Answer these in your own words (3–5 sentences each). There are no absolute right/wrong answers, but aim for precision and depth.</p>
+    
+    <p><strong>A.</strong> Why might “offplanet” (orbital) computing offer advantages that terrestrial systems currently lack?</p>
+    <textarea id="critA" placeholder="Type your answer here..."></textarea>
+    <p class="hint">Possible points: energy abundance, cooling, continuous power, scale of computation…</p>
+
+    <p style="margin-top:18px"><strong>B.</strong> How could real-time adjustment of scaffolding and affective support change the experience of speaking practice compared with a human teacher or current apps?</p>
+    <textarea id="critB" placeholder="Type your answer here..."></textarea>
+    <p class="hint">Consider consistency, lack of judgement, precision of detection, personalisation over many sessions…</p>
+
+    <button onclick="showReflection()">Show Reflection Prompts</button>
+    <div id="reflection" class="feedback hidden" style="background:#ebf8ff; color:#2b6cb0;"></div>
+  </div>
+  <button onclick="showSection(5)">Final Task →</button>
+</section>
+
+<!-- SECTION 5: Productive Task -->
+<section id="section5" class="hidden">
+  <h2>5. Personal Response (Writing)</h2>
+  <div class="card">
+    <p>Write a short paragraph (120–180 words) responding to this question:</p>
+    <p style="font-weight:600; margin:12px 0;">Would you prefer to practise speaking with a highly advanced humanoid robot of the kind described, or with a human teacher? Justify your view with reference to ideas in the text.</p>
+    <textarea id="writing" placeholder="Write your paragraph here..."></textarea>
+    <p class="hint">Aim to use at least three terms from the text (e.g. affective filter, scaffolding, microexpressions, multimodal…).</p>
+    <button onclick="finishActivity()">Complete Activity</button>
+    <div id="finalMsg" class="feedback hidden" style="background:#c6f6d5; color:#276749;"></div>
+  </div>
+</section>
+
+<script>
+  let currentSection = 1;
+  const totalSections = 5;
+
+  function updateProgress() {
+    const pct = (currentSection / totalSections) * 100;
+    document.getElementById('progress').style.width = pct + '%';
+  }
+
+  function showSection(n) {
+    document.getElementById('section' + currentSection).classList.add('hidden');
+    currentSection = n;
+    document.getElementById('section' + n).classList.remove('hidden');
+    updateProgress();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function checkVocab() {
+    const answers = { v1: 'a', v2: 'b', v3: 'b', v4: 'b' };
+    let correct = 0;
+    let html = '';
+    for (let key in answers) {
+      const sel = document.getElementById(key);
+      if (sel.value === answers[key]) {
+        correct++;
+        sel.style.borderColor = '#276749';
+      } else {
+        sel.style.borderColor = '#c53030';
+      }
+    }
+    const fb = document.getElementById('vocabFeedback');
+    fb.style.display = 'block';
+    if (correct === 4) {
+      fb.className = 'feedback correct';
+      fb.innerHTML = 'Excellent — all 4 correct. You have a precise grasp of the key terminology.';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerHTML = `You got ${correct}/4. Review the text and try again. Correct answers: fine-tuning = a, multimodal = b, scaffolding = b, affective filter = b.`;
+    }
+  }
+
+  function checkComprehension() {
+    const answers = { q1: 'b', q2: 'b', q3: 'b', q4: 'b' };
+    let correct = 0;
+    for (let key in answers) {
+      const selected = document.querySelector(`input[name="${key}"]:checked`);
+      if (selected && selected.value === answers[key]) correct++;
+    }
+    const fb = document.getElementById('compFeedback');
+    const scoreBox = document.getElementById('scoreBox');
+    fb.style.display = 'block';
+    scoreBox.classList.remove('hidden');
+    if (correct === 4) {
+      fb.className = 'feedback correct';
+      fb.innerHTML = 'Perfect score! You understood both the details and the overall argument.';
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerHTML = `You scored ${correct}/4. The correct answers are all “b”. Re-read the relevant sentences and try again if you wish.`;
+    }
+    scoreBox.innerHTML = `Comprehension Score: ${correct}/4`;
+  }
+
+  function showReflection() {
+    const ref = document.getElementById('reflection');
+    ref.classList.remove('hidden');
+    ref.innerHTML = `
+      <strong>Reflection guidance</strong><br>
+      A: Orbital systems can access continuous, abundant solar energy and benefit from the cold of space for cooling — removing two major constraints that limit terrestrial training of very large models.<br><br>
+      B: A robot could offer perfectly consistent, non-judgemental, highly precise emotional and linguistic support across many sessions, potentially lowering anxiety more effectively than a human (who may have off-days) or current apps (which lack rich multimodal perception).
+    `;
+  }
+
+  function finishActivity() {
+    const msg = document.getElementById('finalMsg');
+    msg.classList.remove('hidden');
+    msg.innerHTML = `
+      Well done! You have completed the full C1 activity.<br><br>
+      You practised: close reading · precise vocabulary · detailed comprehension · inference · extended written response.<br>
+      Feel free to revise your writing paragraph and compare it with the ideas in the text.
+    `;
+    document.getElementById('progress').style.width = '100%';
+  }
+
+  updateProgress();
+</script>
+</body>
+</html>
