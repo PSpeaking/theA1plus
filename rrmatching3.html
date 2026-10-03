@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Robot Response Matching – C1 Activity</title>
+  <style>
+    :root {
+      --bg: #f8fafc;
+      --card: #ffffff;
+      --primary: #002868;
+      --primary-light: #e8eef7;
+      --accent: #bf0a30;
+      --correct: #1a7f37;
+      --incorrect: #bf0a30;
+      --border: #cbd5e1;
+      --text: #1e293b;
+      --muted: #64748b;
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 1.5rem;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      color: var(--primary);
+      margin-bottom: 0.35rem;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    .intro {
+      background: var(--primary-light);
+      border-left: 4px solid var(--primary);
+      padding: 1rem 1.25rem;
+      border-radius: 0 8px 8px 0;
+      font-size: 0.95rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .instructions {
+      font-size: 0.95rem;
+      color: var(--muted);
+      margin-bottom: 1.5rem;
+      text-align: center;
+    }
+
+    .game-area {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 640px) {
+      .game-area { grid-template-columns: 1fr; }
+    }
+
+    .column-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--primary);
+      margin-bottom: 0.75rem;
+      text-align: center;
+    }
+
+    .drop-zones, .draggables {
+      display: flex;
+      flex-direction: column;
+      gap: 0.75rem;
+    }
+
+    .drop-zone {
+      background: var(--card);
+      border: 2px dashed var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      min-height: 72px;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .drop-zone.drag-over,
+    .drop-zone.selected-target {
+      border-color: var(--primary);
+      background: #f0f5ff;
+    }
+
+    .drop-zone.correct {
+      border-color: var(--correct);
+      background: #f0fdf4;
+    }
+
+    .drop-zone.incorrect {
+      border-color: var(--incorrect);
+      background: #fef2f2;
+    }
+
+    .zone-label {
+      font-weight: 600;
+      font-size: 0.95rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .zone-content {
+      min-height: 28px;
+    }
+
+    .draggable {
+      background: var(--card);
+      border: 2px solid var(--border);
+      border-radius: 10px;
+      padding: 0.85rem 1rem;
+      cursor: grab;
+      user-select: none;
+      box-shadow: var(--shadow);
+      font-size: 0.95rem;
+      transition: transform 0.15s, border-color 0.2s, background 0.2s;
+    }
+
+    .draggable:active { cursor: grabbing; }
+    .draggable.dragging { opacity: 0.45; }
+
+    .draggable.selected {
+      border-color: var(--primary);
+      background: #e8eef7;
+      box-shadow: 0 0 0 3px rgba(0, 40, 104, 0.2);
+    }
+
+    .draggable.in-zone {
+      margin-top: 0.25rem;
+      border-color: var(--primary);
+      background: #f0f5ff;
+      box-shadow: none;
+      cursor: pointer;
+    }
+
+    .controls {
+      display: flex;
+      gap: 0.75rem;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+    }
+
+    button {
+      font: inherit;
+      font-weight: 600;
+      padding: 0.7rem 1.4rem;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.1s;
+    }
+
+    button:active { transform: scale(0.98); }
+
+    .btn-check {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-check:hover { background: #001a4d; }
+
+    .btn-reset {
+      background: #e2e8f0;
+      color: var(--text);
+    }
+    .btn-reset:hover { background: #cbd5e1; }
+
+    .btn-show {
+      background: transparent;
+      color: var(--accent);
+      border: 2px solid var(--accent);
+    }
+    .btn-show:hover {
+      background: var(--accent);
+      color: white;
+    }
+
+    #feedback {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1.25rem;
+      box-shadow: var(--shadow);
+      display: none;
+    }
+
+    #feedback.visible { display: block; }
+
+    #feedback h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.6rem;
+      color: var(--primary);
+    }
+
+    #feedback ul {
+      padding-left: 1.25rem;
+      font-size: 0.92rem;
+    }
+
+    #feedback li { margin-bottom: 0.45rem; }
+
+    .score {
+      font-weight: 700;
+      font-size: 1.15rem;
+      margin-bottom: 0.75rem;
+    }
+    .score.perfect { color: var(--correct); }
+    .score.partial { color: #b45309; }
+
+    footer {
+      margin-top: 2rem;
+      text-align: center;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Robot Response Matching</h1>
+    <p class="subtitle">C1 Interactive Activity – No typing required</p>
+  </header>
+
+  <div class="intro">
+    According to the text, a humanoid robot using advanced multimodal models can detect a learner’s rising speaking anxiety or momentary confusion and respond in real time by adjusting its facial expression, gesture intensity, speech rate, or scaffolding level.
+  </div>
+
+  <p class="instructions">
+    <strong>How to play:</strong><br>
+    • Drag a robot adjustment onto a learner signal<br>
+    • Or click an adjustment, then click the signal you want to match it to
+  </p>
+
+  <div class="game-area">
+    <div>
+      <div class="column-title">Learner Signals</div>
+      <div class="drop-zones" id="dropZones"></div>
+    </div>
+    <div>
+      <div class="column-title">Robot Adjustments</div>
+      <div class="draggables" id="draggables"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button class="btn-check" id="checkBtn">Check answers</button>
+    <button class="btn-show" id="showBtn">Show correct matches</button>
+    <button class="btn-reset" id="resetBtn">Reset</button>
+  </div>
+
+  <div id="feedback"></div>
+
+  <footer>
+    Based on the short video text about post-2035 off-planet AI and humanoid language tutors.
+  </footer>
+
+  <script>
+    const pairs = [
+      {
+        id: "anxiety",
+        label: "Rising speaking anxiety",
+        correct: "facial",
+        explanation: "A calmer, more encouraging facial expression helps lower the affective filter and reduce anxiety."
+      },
+      {
+        id: "confusion",
+        label: "Momentary confusion",
+        correct: "scaffolding",
+        explanation: "Increasing the scaffolding level provides clearer support when the learner is temporarily lost."
+      },
+      {
+        id: "processing",
+        label: "Difficulty processing spoken language",
+        correct: "speech",
+        explanation: "Slowing the speech rate gives the learner more time to process and understand."
+      },
+      {
+        id: "engagement",
+        label: "Need for more natural, engaging interaction",
+        correct: "gesture",
+        explanation: "Adjusting gesture intensity makes the interaction feel more lively and natural."
+      }
+    ];
+
+    const adjustments = [
+      { id: "facial", text: "Adjust facial expression" },
+      { id: "gesture", text: "Adjust gesture intensity" },
+      { id: "speech", text: "Adjust speech rate" },
+      { id: "scaffolding", text: "Adjust scaffolding level" }
+    ];
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    const dropZonesEl = document.getElementById("dropZones");
+    const draggablesEl = document.getElementById("draggables");
+    const feedbackEl = document.getElementById("feedback");
+    const checkBtn = document.getElementById("checkBtn");
+    const showBtn = document.getElementById("showBtn");
+    const resetBtn = document.getElementById("resetBtn");
+
+    let currentMatches = {};
+    let selectedAdjId = null;
+
+    function createDropZones() {
+      dropZonesEl.innerHTML = "";
+      pairs.forEach(pair => {
+        const zone = document.createElement("div");
+        zone.className = "drop-zone";
+        zone.dataset.zoneId = pair.id;
+        zone.innerHTML = `
+          <div class="zone-label">${pair.label}</div>
+          <div class="zone-content" data-content-for="${pair.id}"></div>
+        `;
+        zone.addEventListener("dragover", e => {
+          e.preventDefault();
+          zone.classList.add("drag-over");
+        });
+        zone.addEventListener("dragleave", () => zone.classList.remove("drag-over"));
+        zone.addEventListener("drop", handleDrop);
+        zone.addEventListener("click", () => handleZoneClick(pair.id));
+        dropZonesEl.appendChild(zone);
+      });
+    }
+
+    function createDraggables() {
+      draggablesEl.innerHTML = "";
+      const shuffled = shuffle(adjustments);
+      shuffled.forEach(adj => {
+        const item = document.createElement("div");
+        item.className = "draggable";
+        item.draggable = true;
+        item.dataset.adjId = adj.id;
+        item.textContent = adj.text;
+
+        item.addEventListener("dragstart", e => {
+          e.dataTransfer.setData("text/plain", adj.id);
+          item.classList.add("dragging");
+          selectedAdjId = null;
+          clearSelection();
+        });
+        item.addEventListener("dragend", () => item.classList.remove("dragging"));
+
+        item.addEventListener("click", () => handleAdjClick(adj.id, item));
+
+        draggablesEl.appendChild(item);
+      });
+    }
+
+    function clearSelection() {
+      document.querySelectorAll(".draggable").forEach(el => el.classList.remove("selected"));
+      document.querySelectorAll(".drop-zone").forEach(el => el.classList.remove("selected-target"));
+    }
+
+    function handleAdjClick(adjId, element) {
+      if (element.classList.contains("in-zone")) {
+        // Clicking an item already in a zone returns it to the pool
+        const zoneId = Object.keys(currentMatches).find(k => currentMatches[k] === adjId);
+        if (zoneId) {
+          delete currentMatches[zoneId];
+          element.classList.remove("in-zone");
+          draggablesEl.appendChild(element);
+        }
+        selectedAdjId = null;
+        clearSelection();
+        return;
+      }
+
+      clearSelection();
+      selectedAdjId = adjId;
+      element.classList.add("selected");
+      document.querySelectorAll(".drop-zone").forEach(z => z.classList.add("selected-target"));
+    }
+
+    function handleZoneClick(zoneId) {
+      if (!selectedAdjId) return;
+
+      placeItem(zoneId, selectedAdjId);
+      selectedAdjId = null;
+      clearSelection();
+    }
+
+    function handleDrop(e) {
+      e.preventDefault();
+      const zone = e.currentTarget;
+      zone.classList.remove("drag-over");
+      const adjId = e.dataTransfer.getData("text/plain");
+      if (adjId) placeItem(zone.dataset.zoneId, adjId);
+    }
+
+    function placeItem(zoneId, adjId) {
+      // Remove from any previous zone
+      Object.keys(currentMatches).forEach(zId => {
+        if (currentMatches[zId] === adjId) {
+          delete currentMatches[zId];
+          const oldContent = document.querySelector(`[data-content-for="${zId}"]`);
+          if (oldContent) oldContent.innerHTML = "";
+        }
+      });
+
+      // If zone already has something, return it to pool
+      if (currentMatches[zoneId]) {
+        const oldAdjId = currentMatches[zoneId];
+        const oldEl = document.querySelector(`.draggable[data-adj-id="${oldAdjId}"]`);
+        if (oldEl) {
+          oldEl.classList.remove("in-zone");
+          draggablesEl.appendChild(oldEl);
+        }
+      }
+
+      currentMatches[zoneId] = adjId;
+      const contentEl = document.querySelector(`[data-content-for="${zoneId}"]`);
+      const el = document.querySelector(`.draggable[data-adj-id="${adjId}"]`);
+      if (el && contentEl) {
+        el.classList.add("in-zone");
+        contentEl.appendChild(el);
+      }
+
+      clearFeedbackStyles();
+      feedbackEl.classList.remove("visible");
+    }
+
+    function clearFeedbackStyles() {
+      document.querySelectorAll(".drop-zone").forEach(z => {
+        z.classList.remove("correct", "incorrect");
+      });
+    }
+
+    function checkAnswers() {
+      clearFeedbackStyles();
+      let correctCount = 0;
+      const details = [];
+
+      pairs.forEach(pair => {
+        const zone = document.querySelector(`.drop-zone[data-zone-id="${pair.id}"]`);
+        const chosen = currentMatches[pair.id];
+        if (chosen === pair.correct) {
+          zone.classList.add("correct");
+          correctCount++;
+          details.push(`<li><strong>${pair.label}</strong> → correct. ${pair.explanation}</li>`);
+        } else {
+          zone.classList.add("incorrect");
+          const chosenText = chosen
+            ? adjustments.find(a => a.id === chosen)?.text || "something"
+            : "nothing";
+          details.push(`<li><strong>${pair.label}</strong> → you placed “${chosenText}”. ${pair.explanation}</li>`);
+        }
+      });
+
+      feedbackEl.innerHTML = `
+        <div class="score ${correctCount === 4 ? "perfect" : "partial"}">${correctCount} / 4 correct</div>
+        <h3>Feedback</h3>
+        <ul>${details.join("")}</ul>
+      `;
+      feedbackEl.classList.add("visible");
+    }
+
+    function showCorrect() {
+      // Return everything to pool first
+      Object.keys(currentMatches).forEach(zoneId => {
+        const adjId = currentMatches[zoneId];
+        const el = document.querySelector(`.draggable[data-adj-id="${adjId}"]`);
+        if (el) {
+          el.classList.remove("in-zone");
+          draggablesEl.appendChild(el);
+        }
+      });
+      currentMatches = {};
+
+      pairs.forEach(pair => {
+        const contentEl = document.querySelector(`[data-content-for="${pair.id}"]`);
+        const el = document.querySelector(`.draggable[data-adj-id="${pair.correct}"]`);
+        if (el && contentEl) {
+          el.classList.add("in-zone");
+          contentEl.appendChild(el);
+          currentMatches[pair.id] = pair.correct;
+        }
+      });
+
+      clearFeedbackStyles();
+      document.querySelectorAll(".drop-zone").forEach(z => z.classList.add("correct"));
+
+      feedbackEl.innerHTML = `
+        <h3>Correct matches</h3>
+        <ul>
+          ${pairs.map(p => `
+            <li>
+              <strong>${p.label}</strong> → ${adjustments.find(a => a.id === p.correct).text}<br>
+              <span style="color:var(--muted);font-size:0.9em">${p.explanation}</span>
+            </li>
+          `).join("")}
+        </ul>
+      `;
+      feedbackEl.classList.add("visible");
+    }
+
+    function reset() {
+      currentMatches = {};
+      selectedAdjId = null;
+      clearFeedbackStyles();
+      clearSelection();
+      feedbackEl.classList.remove("visible");
+      feedbackEl.innerHTML = "";
+      createDropZones();
+      createDraggables();
+    }
+
+    checkBtn.addEventListener("click", checkAnswers);
+    showBtn.addEventListener("click", showCorrect);
+    resetBtn.addEventListener("click", reset);
+
+    createDropZones();
+    createDraggables();
+  </script>
+</body>
+</html>
