@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C1 Activity – Detect & Respond</title>
+<style>
+  body {
+    font-family: system-ui, sans-serif;
+    max-width: 820px;
+    margin: 30px auto;
+    padding: 20px;
+    background: #f7fafc;
+    color: #1a202c;
+    line-height: 1.6;
+  }
+  h1 { color: #2b6cb0; margin-bottom: 6px; }
+  .intro { color: #4a5568; margin-bottom: 25px; }
+  .video-box {
+    background: #1a202c;
+    color: white;
+    border-radius: 12px;
+    padding: 28px 22px;
+    margin-bottom: 20px;
+    min-height: 200px;
+  }
+  .subtitles {
+    font-size: 1.2rem;
+    text-align: center;
+    line-height: 1.7;
+  }
+  .highlight {
+    background: #ecc94b;
+    color: #1a202c;
+    padding: 1px 5px;
+    border-radius: 3px;
+  }
+  .controls { text-align: center; margin: 18px 0 30px; }
+  button {
+    background: #2b6cb0;
+    color: white;
+    border: none;
+    padding: 12px 28px;
+    font-size: 1.05rem;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 0 6px;
+  }
+  button:hover { background: #2c5282; }
+  button:disabled { background: #a0aec0; cursor: not-allowed; }
+  .task-area { display: none; }
+  .situation {
+    background: white;
+    padding: 22px;
+    border-radius: 10px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.07);
+    margin-bottom: 20px;
+  }
+  .options label {
+    display: block;
+    background: #edf2f7;
+    padding: 12px 16px;
+    margin: 8px 0;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .options label:hover { background: #e2e8f0; }
+  .feedback {
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 6px;
+    display: none;
+  }
+  .correct { background: #c6f6d5; color: #276749; display: block; }
+  .incorrect { background: #fed7d7; color: #c53030; display: block; }
+  .score-box {
+    text-align: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    padding: 20px;
+    background: #ebf8ff;
+    border-radius: 10px;
+    margin-top: 25px;
+    display: none;
+  }
+</style>
+</head>
+<body>
+
+<h1>Detect & Respond</h1>
+<p class="intro">C1 Activity · Listen to the transcript while reading the subtitles, then decide how the robot should react.</p>
+
+<div class="video-box">
+  <div class="subtitles" id="subtitles">
+    Click “Play” to listen and read the subtitles.
+  </div>
+</div>
+
+<div class="controls">
+  <button id="playBtn" onclick="playTranscript()">▶ Play Transcript</button>
+  <button id="stopBtn" onclick="stopTranscript()" disabled>⏹ Stop</button>
+</div>
+
+<div class="task-area" id="taskArea">
+  <h2>Now decide how the robot should respond</h2>
+  <div id="situations"></div>
+  <div class="score-box" id="scoreBox"></div>
+</div>
+
+<script>
+  const fullText = `Post 2035, offplanet AI will lead to further improvements in efficiency for humanoid robots teaching a second language.
+
+For example, larger-scale, more frequent fine-tuning enabled by abundant orbital solar power could produce significantly stronger multimodal vision-language-action models. These models would allow a humanoid robot to interpret a learner's subtle facial microexpressions, posture shifts, and gaze patterns with higher accuracy across many sessions.
+
+As a result, the robot could detect rising speaking anxiety or momentary confusion earlier and respond in real time by adjusting its own facial expression, gesture intensity, speech rate, or scaffolding level more precisely and naturally. This would improve the quality of affective support and reduce the affective filter during one-to-one conversation practice beyond what models trained under terrestrial energy and cooling constraints can typically achieve.`;
+
+  const sentences = fullText.split(/(?<=[.?!])\s+/);
+  let currentIndex = 0;
+  let isPlaying = false;
+
+  const situations = [
+    {
+      text: "The learner suddenly looks down and stops speaking mid-sentence.",
+      options: [
+        "Increase the difficulty of the questions",
+        "Soften its facial expression and lower speech rate",
+        "Ignore it and continue at the same pace"
+      ],
+      correct: 1,
+      explanation: "Looking down and stopping often signals rising anxiety. The robot should provide affective support by softening expression and slowing down."
+    },
+    {
+      text: "The learner’s eyebrows draw together and they repeat the same phrase with hesitation.",
+      options: [
+        "Offer more scaffolding / simplify the language",
+        "Speak faster to keep the energy high",
+        "Change the topic completely"
+      ],
+      correct: 0,
+      explanation: "Hesitation and facial tension suggest momentary confusion. Increasing scaffolding is the appropriate response."
+    },
+    {
+      text: "The learner maintains steady eye contact, smiles slightly and answers fluently.",
+      options: [
+        "Reduce scaffolding and speak at a more natural speed",
+        "Slow down and use exaggerated gestures",
+        "Immediately start a grammar explanation"
+      ],
+      correct: 0,
+      explanation: "Confident signals mean the learner can handle less support and more natural interaction."
+    },
+    {
+      text: "The learner’s posture becomes closed and they start giving only one-word answers.",
+      options: [
+        "Increase gesture intensity and speak more energetically",
+        "Detect possible anxiety and adjust affective support",
+        "Ask more complex questions"
+      ],
+      correct: 1,
+      explanation: "Closed posture and short answers often indicate rising anxiety – the robot should respond with better affective support."
+    },
+    {
+      text: "The learner glances away quickly several times while trying to formulate an answer.",
+      options: [
+        "Interpret the gaze patterns as possible confusion or anxiety",
+        "Assume the learner is bored and change the topic",
+        "Ignore the gaze and continue"
+      ],
+      correct: 0,
+      explanation: "The text emphasises that the robot can read gaze patterns to detect confusion or anxiety earlier."
+    },
+    {
+      text: "Over several sessions the robot notices the same microexpressions of frustration appearing.",
+      options: [
+        "Keep the same approach because consistency is important",
+        "Use the accumulated data to fine-tune its responses more precisely",
+        "Stop using facial analysis"
+      ],
+      correct: 1,
+      explanation: "The models improve by interpreting patterns across many sessions, allowing more precise adjustments."
+    }
+  ];
+
+  let score = 0;
+  let answered = 0;
+
+  function playTranscript() {
+    if (isPlaying) return;
+    isPlaying = true;
+    document.getElementById('playBtn').disabled = true;
+    document.getElementById('stopBtn').disabled = false;
+    currentIndex = 0;
+    speakNext();
+  }
+
+  function speakNext() {
+    if (currentIndex >= sentences.length || !isPlaying) {
+      stopTranscript();
+      document.getElementById('taskArea').style.display = 'block';
+      renderSituations();
+      return;
+    }
+
+    document.getElementById('subtitles').innerHTML = sentences.map((s, i) =>
+      i === currentIndex ? `<span class="highlight">${s}</span>` : s
+    ).join(' ');
+
+    const utterance = new SpeechSynthesisUtterance(sentences[currentIndex]);
+    utterance.rate = 0.93;
+    utterance.lang = 'en-US';
+    utterance.onend = () => {
+      currentIndex++;
+      setTimeout(speakNext, 350);
+    };
+    speechSynthesis.speak(utterance);
+  }
+
+  function stopTranscript() {
+    isPlaying = false;
+    speechSynthesis.cancel();
+    document.getElementById('playBtn').disabled = false;
+    document.getElementById('stopBtn').disabled = true;
+    document.getElementById('subtitles').innerHTML = fullText.replace(/\n\n/g, '<br><br>');
+  }
+
+  function renderSituations() {
+    const container = document.getElementById('situations');
+    container.innerHTML = '';
+    situations.forEach((sit, idx) => {
+      const div = document.createElement('div');
+      div.className = 'situation';
+      div.id = `sit-${idx}`;
+      div.innerHTML = `
+        <p><strong>Situation ${idx + 1}:</strong> ${sit.text}</p>
+        <div class="options">
+          ${sit.options.map((opt, i) => `
+            <label>
+              <input type="radio" name="q${idx}" value="${i}" onchange="checkAnswer(${idx}, ${i})">
+              ${opt}
+            </label>
+          `).join('')}
+        </div>
+        <div class="feedback" id="fb-${idx}"></div>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  function checkAnswer(sitIdx, chosen) {
+    const sit = situations[sitIdx];
+    const fb = document.getElementById(`fb-${sitIdx}`);
+    const inputs = document.querySelectorAll(`input[name="q${sitIdx}"]`);
+    inputs.forEach(inp => inp.disabled = true);
+
+    if (chosen === sit.correct) {
+      score++;
+      fb.className = 'feedback correct';
+      fb.innerHTML = 'Correct. ' + sit.explanation;
+    } else {
+      fb.className = 'feedback incorrect';
+      fb.innerHTML = 'Not the best choice. ' + sit.explanation;
+    }
+
+    answered++;
+    if (answered === situations.length) {
+      const box = document.getElementById('scoreBox');
+      box.style.display = 'block';
+      box.innerHTML = `Final score: ${score} / ${situations.length}<br>
+        ${score >= 5 ? 'Excellent application of the ideas!' : score >= 3 ? 'Good effort – review the feedback.' : 'Listen again and try to link the robot’s actions more closely to the text.'}`;
+    }
+  }
+</script>
+</body>
+</html>
